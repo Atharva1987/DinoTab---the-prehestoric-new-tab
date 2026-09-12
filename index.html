@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="jungle">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DinoTab - Prehistoric New Tab</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            bg: 'var(--color-bg)',
+                            card: 'var(--color-card)',
+                            border: 'var(--color-border)',
+                            text: 'var(--color-text)',
+                            accent: 'var(--color-accent)',
+                            accentGlow: 'var(--color-accent-glow)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Confetti CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* Theme Variables */
+        :root[data-theme="jungle"] {
+            --color-bg: #06110a;
+            --color-card: rgba(10, 28, 17, 0.72);
+            --color-border: rgba(52, 211, 153, 0.25);
+            --color-text: #ecfdf5;
+            --color-text-muted: #6ee7b7;
+            --color-accent: #10b981;
+            --color-accent-hover: #059669;
+            --color-accent-glow: rgba(16, 185, 129, 0.35);
+            --color-sky-top: #091a13;
+            --color-sky-bottom: #193625;
+            --color-fog: rgba(16, 185, 129, 0.12);
+            --particle-color: rgba(52, 211, 153, 0.6);
+        }
+
+        :root[data-theme="desert"] {
+            --color-bg: #1a0c06;
+            --color-card: rgba(38, 18, 9, 0.72);
+            --color-border: rgba(251, 146, 60, 0.25);
+            --color-text: #fff7ed;
+            --color-text-muted: #fdba74;
+            --color-accent: #f97316;
+            --color-accent-hover: #ea580c;
+            --color-accent-glow: rgba(249, 115, 22, 0.35);
+            --color-sky-top: #261006;
+            --color-sky-bottom: #4a1d08;
+            --color-fog: rgba(249, 115, 22, 0.12);
+            --particle-color: rgba(251, 146, 60, 0.6);
+        }
+
+        :root[data-theme="volcanic"] {
+            --color-bg: #120406;
+            --color-card: rgba(33, 10, 14, 0.72);
+            --color-border: rgba(248, 113, 113, 0.25);
+            --color-text: #fef2f2;
+            --color-text-muted: #fca5a5;
+            --color-accent: #ef4444;
+            --color-accent-hover: #dc2626;
+            --color-accent-glow: rgba(239, 68, 68, 0.4);
+            --color-sky-top: #1c0609;
+            --color-sky-bottom: #3d080a;
+            --color-fog: rgba(239, 68, 68, 0.15);
+            --particle-color: rgba(248, 113, 113, 0.7);
+        }
+
+        :root[data-theme="ice"] {
+            --color-bg: #06111a;
+            --color-card: rgba(10, 25, 41, 0.72);
+            --color-border: rgba(56, 189, 248, 0.25);
+            --color-text: #f0f9ff;
+            --color-text-muted: #7dd3fc;
+            --color-accent: #0284c7;
+            --color-accent-hover: #0369a1;
+            --color-accent-glow: rgba(56, 189, 248, 0.35);
+            --color-sky-top: #0a1b2b;
+            --color-sky-bottom: #14324d;
+            --color-fog: rgba(56, 189, 248, 0.12);
+            --particle-color: rgba(186, 230, 253, 0.8);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow-x: hidden;
+            transition: background-color 0.6s ease, color 0.6s ease;
+            user-select: none;
+        }
+
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: var(--color-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 12px 40px 0 var(--color-accent-glow);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.38);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 18px var(--color-accent-glow);
+        }
+
+        /* Prehistoric Vector Animations */
+        @keyframes floatCloud {
+            0% { transform: translateX(-220px); }
+            100% { transform: translateX(calc(100vw + 220px)); }
+        }
+
+        @keyframes flyPterodactyl {
+            0% { transform: translate(-120px, 0) scale(0.7) rotate(-2deg); }
+            50% { transform: translate(50vw, -35px) scale(0.95) rotate(3deg); }
+            100% { transform: translate(calc(100vw + 120px), -10px) scale(0.8) rotate(-1deg); }
+        }
+
+        @keyframes breatheDino {
+            0%, 100% { transform: scaleY(1) scaleX(1); }
+            50% { transform: scaleY(1.03) scaleX(0.985); }
+        }
+
+        @keyframes tailSway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-8deg); }
+        }
+
+        @keyframes jawChomp {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(24deg); }
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-9px, 7px) rotate(-1deg); }
+            40% { transform: translate(9px, -7px) rotate(1deg); }
+            60% { transform: translate(-7px, -4px) rotate(-0.5deg); }
+            80% { transform: translate(7px, 4px) rotate(0.5deg); }
+        }
+
+        .animate-shake {
+            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .dino-breathing {
+            animation: breatheDino 4s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        .dino-tail {
+            animation: tailSway 5s ease-in-out infinite;
+            transform-origin: 90% 90%;
+        }
+
+        .dino-jaw {
+            transform-origin: 80% 40%;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .dino-jaw.roaring {
+            animation: jawChomp 0.45s ease-in-out infinite;
+        }
+
+        .pterodactyl-fly {
+            animation: flyPterodactyl 28s linear infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 999px;
+        }
+
+        /* Accessibility: Motion Preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .pterodactyl-fly, .dino-breathing, .dino-tail, .animate-shake {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+
+    <div id="parallax-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <!-- Sky Dynamic Gradient -->
+        <div class="absolute inset-0 transition-colors duration-700" style="background: linear-gradient(to bottom, var(--color-sky-top), var(--color-sky-bottom));"></div>
+
+        <!-- Atmospheric Celestial Sun/Moon Orb -->
+        <div class="absolute top-12 right-1/4 w-72 h-72 rounded-full opacity-25 blur-3xl transition-colors duration-700" style="background: var(--color-accent);"></div>
+
+        <!-- Clouds Layer -->
+        <div class="absolute inset-0 opacity-20">
+            <svg class="absolute top-8 w-56 opacity-60" style="animation: floatCloud 45s linear infinite; animation-delay: -5s;" viewBox="0 0 100 40" fill="currentColor"><path d="M10 30 Q20 10 40 20 Q50 5 70 15 Q85 10 90 30 Z" class="text-white"/></svg>
+            <svg class="absolute top-28 w-80 opacity-40" style="animation: floatCloud 65s linear infinite; animation-delay: -25s;" viewBox="0 0 100 40" fill="currentColor"><path d="M10 30 Q25 8 45 18 Q60 2 80 12 Q92 8 95 30 Z" class="text-white"/></svg>
+        </div>
+
+        <!-- Flying Pterodactyl Flock Layer -->
+        <div class="absolute top-16 left-0 right-0 h-40">
+            <svg class="pterodactyl-fly absolute top-0 w-16 h-16 text-slate-900 opacity-60" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M10 50 Q 30 20, 50 45 Q 70 20, 90 50 Q 60 45, 50 80 Q 40 45, 10 50 Z" />
+            </svg>
+            <svg class="pterodactyl-fly absolute top-12 w-10 h-10 text-slate-900 opacity-40" style="animation-delay: -14s; animation-duration: 38s;" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M10 50 Q 30 20, 50 45 Q 70 20, 90 50 Q 60 45, 50 80 Q 40 45, 10 50 Z" />
+            </svg>
+        </div>
+
+        <!-- Parallax Layer 1: Distant Volcanoes & Ridge -->
+        <svg id="layer-mountains" class="absolute bottom-0 w-full h-64 md:h-96 transition-transform duration-100 ease-out" preserveAspectRatio="none" viewBox="0 0 1200 400" fill="none">
+            <path d="M0 400 L0 260 L150 180 L280 280 L450 120 L620 290 L800 140 L980 270 L1200 160 L1200 400 Z" fill="#030a06" opacity="0.55"/>
+            <!-- Active Volcano Smoke Streamer -->
+            <path d="M450 120 L440 90 Q450 70 470 50" stroke="rgba(255,255,255,0.18)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+
+        <!-- Prehistoric Jungle Fog Gradient -->
+        <div class="absolute inset-x-0 bottom-0 h-48 pointer-events-none transition-colors duration-700" style="background: linear-gradient(to top, var(--color-fog), transparent);"></div>
+
+        <!-- Parallax Layer 2: Midground Fern Palms Silhouettes -->
+        <svg id="layer-midground" class="absolute bottom-0 w-full h-48 md:h-72 transition-transform duration-200 ease-out" preserveAspectRatio="none" viewBox="0 0 1200 300" fill="none">
+            <path d="M0 300 L0 200 Q50 150 120 220 Q200 120 310 240 Q420 180 520 230 Q650 140 780 250 Q900 160 1050 220 Q1150 180 1200 210 L1200 300 Z" fill="#020704" opacity="0.85"/>
+        </svg>
+
+        <!-- Parallax Layer 3: Foreground Leaves Edge -->
+        <svg id="layer-foreground" class="absolute -bottom-2 w-full h-32 md:h-48 transition-transform duration-300 ease-out" preserveAspectRatio="none" viewBox="0 0 1200 200" fill="none">
+            <path d="M-20 200 C40 120 80 80 160 140 C100 160 40 180 -20 200 Z" fill="#010402"/>
+            <path d="M0 200 C80 100 140 40 240 110 C160 140 80 170 0 200 Z" fill="#010402"/>
+            <path d="M1220 200 C1140 110 1080 70 980 130 C1060 160 1120 180 1220 200 Z" fill="#010402"/>
+            <path d="M1200 200 Q1050 130 900 200 Z" fill="#010402"/>
+        </svg>
+
+        <!-- Dynamic Dust & Spore Particle Canvas -->
+        <canvas id="particle-canvas" class="absolute inset-0 pointer-events-none"></canvas>
+    </div>
+
+    <header class="relative z-10 w-full p-4 md:p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center space-x-3 cursor-pointer group" id="logo-btn">
+            <div class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                <!-- Dino Footprint Icon -->
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C10.5 2 9.5 3.5 9.5 5C9.5 6.5 10.5 8 12 8C13.5 8 14.5 6.5 14.5 5C14.5 3.5 13.5 2 12 2ZM6.5 6C5 6 4 7.5 4 9C4 10.5 5 12 6.5 12C8 12 9 10.5 9 9C9 7.5 8 6 6.5 6ZM17.5 6C16 6 15 7.5 15 9C15 10.5 16 12 17.5 12C19 12 20 10.5 20 9C20 7.5 19 6 17.5 6ZM12 10C9 10 7 13 7 17C7 19.5 9 22 12 22C15 22 17 19.5 17 17C17 13 15 10 12 10Z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-display text-xl font-bold tracking-wider text-white flex items-center gap-1.5">
+                    DinoTab <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.5</span>
+                </h1>
+                <p class="text-xs text-emerald-400/70 font-mono" id="location-era">ERA: CRETACEOUS</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Ambience Audio Toggle Button -->
+            <button id="audio-toggle-btn" class="glass-card p-2.5 rounded-xl text-slate-300 hover:text-white transition-colors flex items-center gap-2 group" title="Toggle Prehistoric Jungle Ambience">
+                <svg id="audio-icon-off" class="w-5 h-5 text-slate-400 group-hover:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+                <svg id="audio-icon-on" class="w-5 h-5 text-emerald-400 hidden animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                <span class="text-xs font-medium hidden sm:inline text-slate-300">Ambience</span>
+            </button>
+
+            <!-- Theme Picker Trigger Button -->
+            <button id="theme-btn" class="glass-card p-2.5 rounded-xl text-slate-300 hover:text-white transition-colors flex items-center gap-2 group" title="Change Era Theme">
+                <svg class="w-5 h-5 text-emerald-400 group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-xs font-medium hidden sm:inline">Theme</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative z-10 my-auto px-4 py-6 flex flex-col items-center justify-center max-w-4xl mx-auto text-center">
+        <!-- Live Clock Display -->
+        <div class="mb-4">
+            <h2 id="clock-display" class="font-display text-6xl sm:text-7xl md:text-8xl font-black tracking-tight text-white drop-shadow-lg">
+                00:00:00
+            </h2>
+            <p id="date-display" class="text-sm sm:text-base font-medium text-emerald-300/80 tracking-widest uppercase mt-1">
+                Loading Prehistoric Timeline...
+            </p>
+        </div>
+
+        <!-- Explorer Time-Based Greeting -->
+        <div class="mb-8">
+            <span id="greeting-display" class="glass-card px-5 py-2 rounded-full text-base sm:text-lg font-medium text-emerald-100 shadow-xl inline-flex items-center gap-2 border border-emerald-500/30">
+                🌱 Good morning, Explorer 🦖
+            </span>
+        </div>
+
+        <!-- Central Google Search Bar -->
+        <div class="w-full max-w-2xl mb-10">
+            <form id="search-form" action="https://www.google.com/search" method="GET" class="relative group">
+                <div class="relative flex items-center">
+                    <div class="absolute left-4 text-emerald-400 group-focus-within:text-emerald-300 transition-colors">
+                        <!-- Google G SVG Icon -->
+                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+                        </svg>
+                    </div>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        id="search-input"
+                        placeholder="Search the web..." 
+                        autocomplete="off"
+                        autofocus
+                        class="w-full py-4 pl-14 pr-14 text-base sm:text-lg rounded-2xl glass-input shadow-2xl transition-all duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-400/50"
+                    />
+                    <button 
+                        type="submit" 
+                        class="absolute right-3 p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white transition-all duration-200 border border-emerald-500/30"
+                        title="Search Google"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <section class="w-full max-w-3xl mb-10">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-emerald-400/80 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l1.293 1.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                    Dino Trails (Shortcuts)
+                </h3>
+                <button id="add-shortcut-btn" class="text-xs font-medium text-emerald-300 hover:text-white flex items-center gap-1 transition-colors">
+                    <span>+ Add Trail</span>
+                </button>
+            </div>
+            <div id="shortcuts-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                <!-- Shortcuts injected dynamically by JS -->
+            </div>
+        </section>
+
+        <div class="relative my-2 flex flex-col items-center">
+            <!-- Rexy Speech Bubble -->
+            <div id="dino-speech" class="opacity-0 translate-y-2 pointer-events-none transition-all duration-300 mb-2 glass-card px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold text-emerald-200 border border-emerald-400/40 shadow-xl relative">
+                <span id="speech-text">ROAR! Ready to explore?</span>
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-emerald-900/80"></div>
+            </div>
+
+            <!-- Vector Rexy Character -->
+            <div id="rexy-character" class="cursor-pointer transition-transform hover:scale-105 active:scale-95 group relative" title="Click Rexy to Roar!">
+                <div class="absolute inset-0 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <svg class="w-36 h-36 sm:w-44 sm:h-44 dino-breathing relative z-10" viewBox="0 0 200 200" fill="none">
+                    <!-- Tail -->
+                    <path class="dino-tail" d="M 60 130 Q 30 140 10 110 Q 25 155 70 145 Z" fill="#064e3b" />
+                    <!-- Body -->
+                    <ellipse cx="95" cy="135" rx="35" ry="28" fill="#065f46" />
+                    <!-- Legs -->
+                    <path d="M 80 155 Q 75 185 65 190 M 65 190 L 78 190" stroke="#042f2e" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M 105 155 Q 110 185 118 190 M 118 190 L 130 190" stroke="#064e3b" stroke-width="8" stroke-linecap="round"/>
+                    <!-- Small Arms -->
+                    <path d="M 115 125 Q 128 130 125 138" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Head & Upper Jaw -->
+                    <path d="M 100 115 C 100 80 120 60 155 60 C 175 60 185 75 185 85 C 185 95 170 105 145 105 L 110 115 Z" fill="#047857" />
+                    <!-- Lower Jaw (Opens on Roar) -->
+                    <g class="dino-jaw" id="rexy-jaw">
+                        <path d="M 115 105 L 175 105 C 170 125 140 125 120 115 Z" fill="#065f46" />
+                        <path d="M 125 105 L 130 112 L 135 105 L 140 112 L 145 105 L 150 112 L 155 105" stroke="#ffffff" stroke-width="2" fill="none" />
+                    </g>
+                    <!-- Eye & Iris -->
+                    <circle cx="150" cy="75" r="5" fill="#fef08a" />
+                    <circle cx="151" cy="74" r="2" fill="#000000" />
+                    <!-- Back Spikes -->
+                    <path d="M 80 110 L 85 100 L 92 112 L 98 102 L 105 118" stroke="#34d399" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+            <p class="text-[11px] font-mono text-emerald-400/60 mt-1">CLICK REXY TO ROAR</p>
+        </div>
+
+        <section class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-left">
+            <!-- Daily Mission Card -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Daily Explorer Mission
+                    </span>
+                    <span id="mission-status-tag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">PENDING</span>
+                </div>
+
+                <div class="my-2">
+                    <p id="mission-text-display" class="text-sm font-medium text-slate-200">
+                        Loading daily mission...
+                    </p>
+                </div>
+
+                <!-- Custom Fossil Footprint Stamp Checkbox Button -->
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-emerald-500/10">
+                    <span class="text-xs text-slate-400">Mark as completed:</span>
+                    <button id="mission-checkbox-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-emerald-500/30 hover:border-emerald-400 transition-all group">
+                        <svg id="fossil-stamp-icon" class="w-5 h-5 text-slate-500 group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C10.5 2 9.5 3.5 9.5 5C9.5 6.5 10.5 8 12 8C13.5 8 14.5 6.5 14.5 5C14.5 3.5 13.5 2 12 2ZM6.5 6C5 6 4 7.5 4 9C4 10.5 5 12 6.5 12C8 12 9 10.5 9 9C9 7.5 8 6 6.5 6ZM17.5 6C16 6 15 7.5 15 9C15 10.5 16 12 17.5 12C19 12 20 10.5 20 9C20 7.5 19 6 17.5 6ZM12 10C9 10 7 13 7 17C7 19.5 9 22 12 22C15 22 17 19.5 17 17C17 13 15 10 12 10Z"/>
+                        </svg>
+                        <span id="mission-btn-label" class="text-xs font-semibold text-slate-300">Stamp Fossil</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Fossil Fact Card -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between relative">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            Fossil Fact of the Day
+                        </span>
+                        <span id="fact-era-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">JURASSIC</span>
+                    </div>
+
+                    <h4 id="fact-dino-name" class="font-display text-lg font-bold text-white mb-1">
+                        Tyrannosaurus Rex
+                    </h4>
+                    <p id="fact-body-text" class="text-xs leading-relaxed text-slate-300 line-clamp-3">
+                        T-Rex had a bite force of over 12,000 pounds, enough to crush a car!
+                    </p>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between pt-3 border-t border-emerald-500/10">
+                    <span class="text-[11px] text-slate-400 italic">Rotates daily</span>
+                    <button id="next-fact-btn" class="text-xs font-semibold text-amber-300 hover:text-white flex items-center gap-1 transition-colors">
+                        <span>Discover Another 🎲</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Info -->
+    <footer class="relative z-10 w-full p-4 text-center text-xs text-slate-400/80">
+        <p>DinoTab — Type <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono text-[10px] border border-slate-700">dino</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono text-[10px] border border-slate-700">rawr</kbd> for a prehistoric surprise!</p>
+    </footer>
+
+    <!-- Add Shortcut Modal -->
+    <div id="add-shortcut-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-card rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl transform scale-95 transition-transform duration-300">
+            <h3 class="font-display text-xl font-bold text-white mb-4">Add Dino Trail Shortcut</h3>
+            <form id="add-shortcut-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Shortcut Name</label>
+                    <input type="text" id="shortcut-title-input" placeholder="e.g. GitHub" required class="w-full px-4 py-2.5 rounded-xl glass-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Website URL</label>
+                    <input type="url" id="shortcut-url-input" placeholder="https://github.com" required class="w-full px-4 py-2.5 rounded-xl glass-input text-sm">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" id="close-shortcut-modal-btn" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shadow-lg">Save Trail</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Theme Selector Modal -->
+    <div id="theme-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-card rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display text-xl font-bold text-white">Select Prehistoric Era Theme</h3>
+                <button id="close-theme-modal-btn" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="theme-option p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/40 hover:border-emerald-400 text-left transition-all" data-set-theme="jungle">
+                    <div class="w-full h-12 rounded-lg bg-gradient-to-r from-emerald-900 to-green-950 mb-2 border border-emerald-500/20"></div>
+                    <span class="font-bold text-sm text-emerald-300 block">Jurassic Jungle</span>
+                    <span class="text-[11px] text-slate-400">Emerald greenery & mist</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl border border-orange-500/30 bg-orange-950/40 hover:border-orange-400 text-left transition-all" data-set-theme="desert">
+                    <div class="w-full h-12 rounded-lg bg-gradient-to-r from-amber-900 to-orange-950 mb-2 border border-orange-500/20"></div>
+                    <span class="font-bold text-sm text-orange-300 block">Cretaceous Desert</span>
+                    <span class="text-[11px] text-slate-400">Warm sands & terracotta</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl border border-red-500/30 bg-red-950/40 hover:border-red-400 text-left transition-all" data-set-theme="volcanic">
+                    <div class="w-full h-12 rounded-lg bg-gradient-to-r from-red-950 to-stone-900 mb-2 border border-red-500/20"></div>
+                    <span class="font-bold text-sm text-red-300 block">Volcanic Wasteland</span>
+                    <span class="text-[11px] text-slate-400">Magma glow & obsidian</span>
+                </button>
+                <button class="theme-option p-4 rounded-xl border border-sky-500/30 bg-sky-950/40 hover:border-sky-400 text-left transition-all" data-set-theme="ice">
+                    <div class="w-full h-12 rounded-lg bg-gradient-to-r from-slate-900 to-sky-950 mb-2 border border-sky-500/20"></div>
+                    <span class="font-bold text-sm text-sky-300 block">Ice Age Tundra</span>
+                    <span class="text-[11px] text-slate-400">Glacial frost & blue slate</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Easter Egg Awakening Banner Overlay -->
+    <div id="easter-egg-banner" class="fixed inset-0 z-50 pointer-events-none flex flex-col items-center justify-center opacity-0 transition-opacity duration-500">
+        <div class="bg-red-900/90 border-2 border-red-500 text-white px-8 py-6 rounded-3xl shadow-2xl text-center transform scale-90 animate-bounce">
+            <h2 class="font-display text-3xl sm:text-5xl font-black text-amber-300 tracking-wider">THE DINOSAURS HAVE AWAKENED!</h2>
+            <p class="text-sm sm:text-base text-slate-200 mt-2 font-mono">🦖 Prehistoric Invasion Unleashed! 🦕</p>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API Synthesizer for procedural audio effects
+        class PrehistoricAudio {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = true;
+                this.ambientOsc = null;
+                this.ambientGain = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playRoar() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                const bufferSize = this.ctx.sampleRate * 1.5;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(160, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 1.2);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.4);
+
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(85, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(28, this.ctx.currentTime + 1.2);
+
+                const oscGain = this.ctx.createGain();
+                oscGain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                oscGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.2);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.connect(oscGain);
+                oscGain.connect(this.ctx.destination);
+
+                noise.start();
+                osc.start();
+                noise.stop(this.ctx.currentTime + 1.5);
+                osc.stop(this.ctx.currentTime + 1.3);
+            }
+
+            playChime() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.15); // E5
+                osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.3); // G5
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.85);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.85);
+            }
+
+            toggleAmbience(enable) {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                if (enable) {
+                    const bufferSize = this.ctx.sampleRate * 3;
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                    this.ambientOsc = this.ctx.createBufferSource();
+                    this.ambientOsc.buffer = buffer;
+                    this.ambientOsc.loop = true;
+
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(280, this.ctx.currentTime);
+                    filter.Q.setValueAtTime(3, this.ctx.currentTime);
+
+                    this.ambientGain = this.ctx.createGain();
+                    this.ambientGain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+
+                    this.ambientOsc.connect(filter);
+                    filter.connect(this.ambientGain);
+                    this.ambientGain.connect(this.ctx.destination);
+
+                    this.ambientOsc.start();
+                    this.isMuted = false;
+                } else {
+                    if (this.ambientOsc) {
+                        this.ambientOsc.stop();
+                        this.ambientOsc.disconnect();
+                    }
+                    this.isMuted = true;
+                }
+            }
+        }
+
+        const audioManager = new PrehistoricAudio();
+
+        // Data Models
+        const FOSSIL_FACTS = [
+            { name: "Tyrannosaurus Rex", era: "CRETACEOUS", fact: "T-Rex had a bite force of over 12,000 lbs, enough to crush a heavy vehicle with ease!" },
+            { name: "Brachiosaurus", era: "JURASSIC", fact: "Brachiosaurus stood over 40 feet tall and had front legs longer than its hind legs to reach high treetops." },
+            { name: "Velociraptor", era: "CRETACEOUS", fact: "Unlike Jurassic Park movies, real Velociraptors were roughly the size of a turkey and covered in feathers!" },
+            { name: "Triceratops", era: "CRETACEOUS", fact: "Triceratops possessed a skull that could reach over 7 feet long, accounting for nearly a third of its entire body length." },
+            { name: "Spinosaurus", era: "CRETACEOUS", fact: "Spinosaurus was the largest known carnivorous dinosaur, even larger than T-Rex, and was fully adapted for swimming!" },
+            { name: "Stegosaurus", era: "JURASSIC", fact: "Despite weighing over 5 tons, Stegosaurus had a brain no larger than a walnut!" }
+        ];
+
+        const DAILY_MISSIONS = [
+            "Discover a new informative website or article today.",
+            "Take a 5-minute deep breath break amidst nature.",
+            "Learn one new fascinating dinosaur fact.",
+            "Organize your browser tabs like a tidy fossil hunter.",
+            "Reach out to an explorer friend you haven't talked to recently."
+        ];
+
+        const DEFAULT_SHORTCUTS = [
+            { title: "YouTube", url: "https://youtube.com" },
+            { title: "Gmail", url: "https://mail.google.com" },
+            { title: "Google Drive", url: "https://drive.google.com" },
+            { title: "Wikipedia", url: "https://wikipedia.org" },
+            { title: "ChatGPT", url: "https://chatgpt.com" },
+            { title: "GitHub", url: "https://github.com" }
+        ];
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            document.getElementById('clock-display').textContent = `${hours}:${minutes}:${seconds}`;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', options);
+
+            const currentHour = now.getHours();
+            let greetingText = "Good evening, Explorer 🦖";
+            let emoji = "🌙";
+
+            if (currentHour >= 5 && currentHour < 12) {
+                greetingText = "Good morning, Explorer 🦖";
+                emoji = "🌱";
+            } else if (currentHour >= 12 && currentHour < 18) {
+                greetingText = "Good afternoon, Explorer 🦖";
+                emoji = "☀️";
+            }
+
+            document.getElementById('greeting-display').textContent = `${emoji} ${greetingText}`;
+        }
+
+        // Shortcut Storage Logic
+        function getShortcuts() {
+            const saved = localStorage.getItem('dinotab_shortcuts');
+            return saved ? JSON.parse(saved) : DEFAULT_SHORTCUTS;
+        }
+
+        function saveShortcuts(shortcuts) {
+            localStorage.setItem('dinotab_shortcuts', JSON.stringify(shortcuts));
+            renderShortcuts();
+        }
+
+        function renderShortcuts() {
+            const grid = document.getElementById('shortcuts-grid');
+            grid.innerHTML = '';
+            const shortcuts = getShortcuts();
+
+            shortcuts.forEach((sc, index) => {
+                const item = document.createElement('a');
+                item.href = sc.url;
+                item.className = 'glass-card p-3 rounded-xl flex flex-col items-center justify-center text-center group relative hover:-translate-y-1 transition-all';
+                
+                let domain = '';
+                try {
+                    domain = new URL(sc.url).hostname;
+                } catch(e) { domain = 'google.com'; }
+
+                item.innerHTML = `
+                    <button data-index="${index}" class="delete-sc-btn absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-400 transition-opacity">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-xl mb-1.5 group-hover:bg-emerald-500/20 transition-colors">
+                        <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" class="w-6 h-6 rounded" onerror="this.onerror=null; this.src='https://placehold.co/32x32/10b981/ffffff?text=${sc.title[0]}';">
+                    </div>
+                    <span class="text-xs font-medium text-slate-200 group-hover:text-emerald-300 truncate w-full">${sc.title}</span>
+                `;
+
+                grid.appendChild(item);
+            });
+
+            document.querySelectorAll('.delete-sc-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    const list = getShortcuts();
+                    list.splice(idx, 1);
+                    saveShortcuts(list);
+                });
+            });
+        }
+
+        // Daily Content Logic
+        function initDailyContent() {
+            const todayKey = new Date().toISOString().split('T')[0];
+            
+            const savedMissionDate = localStorage.getItem('dinotab_daily_mission_date');
+            let missionIndex = localStorage.getItem('dinotab_daily_mission_idx');
+
+            if (savedMissionDate !== todayKey || !missionIndex) {
+                missionIndex = Math.floor(Math.random() * DAILY_MISSIONS.length);
+                localStorage.setItem('dinotab_daily_mission_date', todayKey);
+                localStorage.setItem('dinotab_daily_mission_idx', missionIndex);
+                localStorage.setItem('dinotab_daily_mission_done', 'false');
+            }
+
+            const isDone = localStorage.getItem('dinotab_daily_mission_done') === 'true';
+            document.getElementById('mission-text-display').textContent = DAILY_MISSIONS[missionIndex];
+            updateMissionUI(isDone);
+
+            let factIndex = parseInt(localStorage.getItem('dinotab_fact_idx') || '0');
+            renderFact(factIndex);
+        }
+
+        function updateMissionUI(isDone) {
+            const statusTag = document.getElementById('mission-status-tag');
+            const stampIcon = document.getElementById('fossil-stamp-icon');
+            const btnLabel = document.getElementById('mission-btn-label');
+
+            if (isDone) {
+                statusTag.textContent = 'COMPLETED';
+                statusTag.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                stampIcon.className = 'w-5 h-5 text-emerald-400 scale-110 transition-all';
+                btnLabel.textContent = 'Mission Complete!';
+            } else {
+                statusTag.textContent = 'PENDING';
+                statusTag.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700';
+                stampIcon.className = 'w-5 h-5 text-slate-500 group-hover:text-emerald-400 transition-colors';
+                btnLabel.textContent = 'Stamp Fossil';
+            }
+        }
+
+        function renderFact(index) {
+            const fact = FOSSIL_FACTS[index % FOSSIL_FACTS.length];
+            document.getElementById('fact-dino-name').textContent = fact.name;
+            document.getElementById('fact-era-badge').textContent = fact.era;
+            document.getElementById('fact-body-text').textContent = fact.fact;
+        }
+
+        function applyTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('dinotab_theme', themeName);
+
+            const eraMap = {
+                'jungle': 'ERA: CRETACEOUS',
+                'desert': 'ERA: TRIASSIC',
+                'volcanic': 'ERA: PERMIAN',
+                'ice': 'ERA: PLEISTOCENE'
+            };
+            document.getElementById('location-era').textContent = eraMap[themeName] || 'ERA: CRETACEOUS';
+        }
+
+        // Particle System Canvas Engine
+        class ParticleSystem {
+            constructor() {
+                this.canvas = document.getElementById('particle-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.initParticles();
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            initParticles() {
+                this.particles = [];
+                const count = Math.floor(window.innerWidth / 20);
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        radius: Math.random() * 2 + 0.5,
+                        vy: -Math.random() * 0.4 - 0.1,
+                        vx: Math.random() * 0.4 - 0.2,
+                        opacity: Math.random() * 0.6 + 0.2
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || 'rgba(52, 211, 153, 0.6)';
+
+                this.particles.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+
+                    if (p.y < 0) {
+                        p.y = this.canvas.height;
+                        p.x = Math.random() * this.canvas.width;
+                    }
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    this.ctx.fillStyle = computedColor;
+                    this.ctx.fill();
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Clock
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Initialize Theme
+            const savedTheme = localStorage.getItem('dinotab_theme') || 'jungle';
+            applyTheme(savedTheme);
+
+            // Render Dynamic Shortcuts & Daily Cards
+            renderShortcuts();
+            initDailyContent();
+
+            // Particle Canvas Engine Start
+            const ps = new ParticleSystem();
+            ps.animate();
+
+            // Parallax Effect Listener
+            window.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+
+                document.getElementById('layer-mountains').style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+                document.getElementById('layer-midground').style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
+                document.getElementById('layer-foreground').style.transform = `translate(${x * 0.8}px, ${y * 0.8}px)`;
+            });
+
+            // Interactive Rexy T-Rex Character Roar Trigger
+            const rexy = document.getElementById('rexy-character');
+            const jaw = document.getElementById('rexy-jaw');
+            const speech = document.getElementById('dino-speech');
+            const speechText = document.getElementById('speech-text');
+
+            const ROAR_PHRASES = [
+                "ROAR! Ready to explore?",
+                "GRRR! Rawr means hello!",
+                "ROAAAR! Conquer the day!",
+                "RAWR! Watch out for Raptors!",
+                "ROAR! Unearth greatness!"
+            ];
+
+            rexy.addEventListener('click', () => {
+                // Play Audio Roar
+                audioManager.playRoar();
+
+                // Jaw Animation & Screen Shake
+                jaw.classList.add('roaring');
+                document.body.classList.add('animate-shake');
+
+                setTimeout(() => {
+                    jaw.classList.remove('roaring');
+                    document.body.classList.remove('animate-shake');
+                }, 1200);
+
+                // Speech Bubble Response
+                const randomPhrase = ROAR_PHRASES[Math.floor(Math.random() * ROAR_PHRASES.length)];
+                speechText.textContent = randomPhrase;
+                speech.classList.remove('opacity-0', 'translate-y-2');
+                speech.classList.add('opacity-100', 'translate-y-0');
+
+                setTimeout(() => {
+                    speech.classList.remove('opacity-100', 'translate-y-0');
+                    speech.classList.add('opacity-0', 'translate-y-2');
+                }, 3000);
+            });
+
+            // Daily Mission Checkbox Click Handler
+            const missionBtn = document.getElementById('mission-checkbox-btn');
+            missionBtn.addEventListener('click', () => {
+                const currentDone = localStorage.getItem('dinotab_daily_mission_done') === 'true';
+                const nextState = !currentDone;
+
+                localStorage.setItem('dinotab_daily_mission_done', String(nextState));
+                updateMissionUI(nextState);
+
+                if (nextState) {
+                    audioManager.playChime();
+                    if (typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 80,
+                            spread: 70,
+                            origin: { y: 0.7 }
+                        });
+                    }
+                }
+            });
+
+            // Fact Rotation Button Handler
+            const nextFactBtn = document.getElementById('next-fact-btn');
+            nextFactBtn.addEventListener('click', () => {
+                let factIndex = parseInt(localStorage.getItem('dinotab_fact_idx') || '0');
+                factIndex++;
+                localStorage.setItem('dinotab_fact_idx', String(factIndex));
+                renderFact(factIndex);
+            });
+
+            // Shortcuts Modal Controls
+            const addShortcutModal = document.getElementById('add-shortcut-modal');
+            const addShortcutBtn = document.getElementById('add-shortcut-btn');
+            const closeShortcutModalBtn = document.getElementById('close-shortcut-modal-btn');
+            const addShortcutForm = document.getElementById('add-shortcut-form');
+
+            addShortcutBtn.addEventListener('click', () => {
+                addShortcutModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            closeShortcutModalBtn.addEventListener('click', () => {
+                addShortcutModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            addShortcutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('shortcut-title-input').value.trim();
+                let url = document.getElementById('shortcut-url-input').value.trim();
+
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+
+                const list = getShortcuts();
+                list.push({ title, url });
+                saveShortcuts(list);
+
+                document.getElementById('shortcut-title-input').value = '';
+                document.getElementById('shortcut-url-input').value = '';
+                addShortcutModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            // Theme Modal Controls
+            const themeModal = document.getElementById('theme-modal');
+            const themeBtn = document.getElementById('theme-btn');
+            const closeThemeModalBtn = document.getElementById('close-theme-modal-btn');
+
+            themeBtn.addEventListener('click', () => {
+                themeModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            closeThemeModalBtn.addEventListener('click', () => {
+                themeModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.getAttribute('data-set-theme');
+                    applyTheme(theme);
+                    themeModal.classList.add('opacity-0', 'pointer-events-none');
+                });
+            });
+
+            // Audio Ambience Toggle
+            const audioToggleBtn = document.getElementById('audio-toggle-btn');
+            const audioIconOff = document.getElementById('audio-icon-off');
+            const audioIconOn = document.getElementById('audio-icon-on');
+
+            audioToggleBtn.addEventListener('click', () => {
+                const nextMute = !audioManager.isMuted;
+                audioManager.toggleAmbience(nextMute);
+
+                if (nextMute) {
+                    audioIconOff.classList.add('hidden');
+                    audioIconOn.classList.remove('hidden');
+                } else {
+                    audioIconOff.classList.remove('hidden');
+                    audioIconOn.classList.add('hidden');
+                }
+            });
+
+            // Easter Egg Keyboard Sequence Listener ("dino" or "rawr")
+            let keySequence = '';
+            window.addEventListener('keydown', (e) => {
+                // Ignore keypress inside input fields
+                if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+                keySequence += e.key.toLowerCase();
+                if (keySequence.length > 10) keySequence = keySequence.slice(-10);
+
+                if (keySequence.includes('dino') || keySequence.includes('rawr')) {
+                    keySequence = '';
+                    triggerEasterEgg();
+                }
+            });
+
+            function triggerEasterEgg() {
+                audioManager.playRoar();
+                document.body.classList.add('animate-shake');
+
+                const banner = document.getElementById('easter-egg-banner');
+                banner.classList.remove('opacity-0', 'pointer-events-none');
+
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 150,
+                        spread: 100,
+                        origin: { y: 0.5 }
+                    });
+                }
+
+                setTimeout(() => {
+                    document.body.classList.remove('animate-shake');
+                    banner.classList.add('opacity-0', 'pointer-events-none');
+                }, 3500);
+            }
+        });
+    </script>
+</body>
+</html>
